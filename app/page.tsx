@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
   ChevronDown,
   Trash2,
+  X,
 } from "lucide-react";
 import Header from "@/components/Header";
 import { getListings, deleteListing, type Listing } from "@/lib/listings-store";

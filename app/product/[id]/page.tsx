@@ -1425,7 +1425,7 @@ function CheckoutModal({ isOpen, onClose, productTitle, productImage, productPri
             </div>
 
             {/* Footer */}
-            {step !== "success" && (
+            {(step as string) !== "success" && (
               <div className="sticky bottom-0 bg-cream-50 border-t border-cream-300 p-4">
                 {step === "payment" ? (
                   <button
