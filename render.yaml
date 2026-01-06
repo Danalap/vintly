@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: vintly
+    runtime: node
+    region: oregon
+    plan: starter
+    buildCommand: yarn && yarn build
+    startCommand: yarn start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+    healthCheckPath: /
+    autoDeploy: true
+
