@@ -126,3 +126,8 @@ export function updateUserProfile(updates: Partial<User>): void {
   window.dispatchEvent(new Event("userAuthChanged"));
 }
 
+
+
+
+
+

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "render": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-render"],
+      "env": {
+        "RENDER_API_KEY": "rnd_Wri8TZvWPh8Lj7DQ5VvoU2H1QMI2"
+      }
+    }
+  }
+}

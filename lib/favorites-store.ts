@@ -74,3 +74,8 @@ export function getFavoritesCount(): number {
   return getFavorites().length;
 }
 
+
+
+
+
+

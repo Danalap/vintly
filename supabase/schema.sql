@@ -418,3 +418,8 @@ CREATE TRIGGER update_product_likes
 -- DELETE: users can delete their own uploads
 
 
+
+
+
+
+
