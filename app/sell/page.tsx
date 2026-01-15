@@ -19,7 +19,7 @@ import {
   Truck,
   MapPin,
 } from "lucide-react";
-import { saveListing } from "@/lib/listings-store";
+// Using Supabase API for product storage
 import PhotoEnhanceModal from "@/components/PhotoEnhanceModal";
 
 // =============================================
@@ -1259,31 +1259,39 @@ export default function SellPage() {
   const handlePublish = async () => {
     setIsSubmitting(true);
     
-    // Save listing to localStorage
+    // Save listing to Supabase via API
     try {
-      saveListing({
-        photos: listingData.photos,
-        title: listingData.title,
-        description: listingData.description,
-        category: listingData.category,
-        size: listingData.size,
-        condition: listingData.condition,
-        brand: listingData.brand,
-        color: listingData.color,
-        price: parseFloat(listingData.price),
-        shippingWeight: listingData.shippingWeight,
-        allowPickup: listingData.allowPickup,
-        allowDelivery: listingData.allowDelivery,
-        shippingIncluded: listingData.shippingIncluded,
-        pickupLocation: listingData.pickupLocation,
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: listingData.title,
+          description: listingData.description,
+          category: listingData.category,
+          size: listingData.size,
+          condition: listingData.condition,
+          brand: listingData.brand,
+          color: listingData.color,
+          price: listingData.price,
+          shippingWeight: listingData.shippingWeight,
+          photos: listingData.photos,
+        }),
       });
-      
-      // Small delay for UX
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create listing");
+      }
+
+      console.log("Product created successfully:", data.product);
       setIsSubmitting(false);
       setIsSuccess(true);
     } catch (error) {
       console.error("Error saving listing:", error);
+      alert(error instanceof Error ? error.message : "Failed to create listing. Please try again.");
       setIsSubmitting(false);
     }
   };

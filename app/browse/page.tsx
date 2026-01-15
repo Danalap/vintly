@@ -15,7 +15,6 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import Header from "@/components/Header";
-import { getListings, deleteListing, type Listing } from "@/lib/listings-store";
 import { isFavorite, toggleFavorite } from "@/lib/favorites-store";
 
 // =============================================
@@ -688,22 +687,37 @@ const conditionLabels: Record<string, string> = {
   fair: "Fair",
 };
 
-// Convert a Listing to a Product for display
-function listingToProduct(listing: Listing): Product {
+// Supabase product type
+interface SupabaseProduct {
+  id: string;
+  title: string;
+  price: number;
+  size: string;
+  brand: string | null;
+  color: string | null;
+  condition: string;
+  category: string;
+  images?: { url: string; order_index: number }[];
+  likes_count: number;
+}
+
+// Convert a Supabase product to display Product
+function supabaseToProduct(product: SupabaseProduct): Product {
+  const sortedImages = product.images?.sort((a, b) => a.order_index - b.order_index) || [];
   return {
-    id: listing.id,
-    title: listing.title,
-    price: listing.price,
-    size: listing.size,
-    brand: listing.brand || "No Brand",
-    color: listing.color || "Multi",
-    condition: conditionLabels[listing.condition] || listing.condition,
-    category: listing.category,
-    imageUrl: listing.photos[0] || "",
-    sellerName: listing.sellerName,
-    sellerAvatar: listing.sellerAvatar,
-    likes: listing.likes,
-    isUserListing: true,
+    id: product.id,
+    title: product.title,
+    price: product.price,
+    size: product.size,
+    brand: product.brand || "Designer",
+    color: product.color || "Multi",
+    condition: conditionLabels[product.condition] || product.condition,
+    category: product.category,
+    imageUrl: sortedImages[0]?.url || "",
+    sellerName: "Seller",
+    sellerAvatar: "",
+    likes: product.likes_count || 0,
+    isUserListing: true, // Mark as user listing since it's from Supabase
   };
 }
 
@@ -720,23 +734,38 @@ export default function BrowsePage() {
   const [selectedPriceRange, setSelectedPriceRange] = useState<{ min: number; max: number } | null>(null);
   const [sortBy, setSortBy] = useState("newest");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [userListings, setUserListings] = useState<Product[]>([]);
+  const [supabaseProducts, setSupabaseProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load user listings
+  // Load products from Supabase
   useEffect(() => {
-    const listings = getListings();
-    setUserListings(listings.map(listingToProduct));
+    async function fetchProducts() {
+      try {
+        const response = await fetch("/api/products");
+        const data = await response.json();
+        
+        if (data.products && Array.isArray(data.products)) {
+          setSupabaseProducts(data.products.map(supabaseToProduct));
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchProducts();
   }, []);
 
-  // Combine user listings with dummy products
+  // Combine Supabase products with dummy products
   const allProducts = useMemo(() => {
-    return [...userListings, ...DUMMY_PRODUCTS];
-  }, [userListings]);
+    return [...supabaseProducts, ...DUMMY_PRODUCTS];
+  }, [supabaseProducts]);
 
-  // Handle delete listing
+  // Handle delete listing (placeholder - would need API endpoint)
   const handleDeleteListing = (id: string) => {
-    deleteListing(id);
-    setUserListings((prev) => prev.filter((p) => p.id !== id));
+    // TODO: Implement delete via API
+    setSupabaseProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
   // Clear all filters
